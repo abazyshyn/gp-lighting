@@ -17,7 +17,7 @@ namespace GP
         ID3D11DeviceContext *GetDeviceContext() { return m_deviceContext; };
         void GetWorldMatrix(XMMATRIX &worldMatrix) const { worldMatrix = m_worldMatrix; };
         void GetOrthoMatrix(XMMATRIX &orthoMatrix) const { orthoMatrix = m_orthoMatrix; };
-        void GetProjectionMatrix(XMMATRIX &projectionMatrix) const { projectionMatrix = m_projectionMatrix; };
+        void GetPerspectiveMatrix(XMMATRIX &perspectiveMatrix) const { perspectiveMatrix = m_perspectiveMatrix; };
         void GetVideoCardInfo(char *cardName, int32_t &memory) const;
 
         void SetBackBufferRenderTarget() { m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView); }
@@ -37,14 +37,17 @@ namespace GP
         ID3D11RasterizerState *m_rasterizerState;
         ID3D11DepthStencilState *m_depthDisabledStencilState;
         D3D11_VIEWPORT m_viewport;
+
+        unsigned char _padding1[8] = {};
+
         XMMATRIX m_worldMatrix;
         XMMATRIX m_orthoMatrix;
-        XMMATRIX m_projectionMatrix;
+        XMMATRIX m_perspectiveMatrix;
         char m_videoCardDescription[128];
         int32_t m_videoCardMemory;
         bool m_vsync;
 
-        unsigned char _padding[11] = {};
+        unsigned char _padding2[11] = {};
     };
 
 } // namespace GP
