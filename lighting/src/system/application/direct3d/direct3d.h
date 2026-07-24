@@ -38,7 +38,7 @@ namespace GP
         ID3D11DepthStencilState *m_depthDisabledStencilState;
         D3D11_VIEWPORT m_viewport;
 
-        unsigned char _padding1[8] = {};
+        uint_least8_t _padding1[8] = {};
 
         XMMATRIX m_worldMatrix;
         XMMATRIX m_orthoMatrix;
@@ -47,7 +47,7 @@ namespace GP
         int32_t m_videoCardMemory;
         bool m_vsync;
 
-        unsigned char _padding2[11] = {};
+        uint_least8_t _padding2[11] = {};
     };
 
 } // namespace GP

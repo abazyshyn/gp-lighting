@@ -1,0 +1,102 @@
+#include "pch.h"
+
+#include "texture.h"
+#include "stb_image/stb_image.h"
+
+namespace GP
+{
+
+    CTexture::CTexture()
+        : m_textureData(nullptr),
+          m_texture(nullptr),
+          m_textureView(nullptr),
+          m_width(0),
+          m_height(0),
+          m_channels(0)
+    {
+    }
+
+    bool CTexture::Init(ID3D11Device *device, ID3D11DeviceContext *deviceContext, std::string filename)
+    {
+        if (!LoadTexture(filename))
+        {
+            return false;
+        }
+
+        D3D11_TEXTURE2D_DESC textureDescription{};
+        textureDescription.Width = static_cast<uint32_t>(m_width);
+        textureDescription.Height = static_cast<uint32_t>(m_height);
+        textureDescription.MipLevels = 0;
+        textureDescription.ArraySize = 1;
+        textureDescription.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        textureDescription.SampleDesc.Count = 1;
+        textureDescription.SampleDesc.Quality = 0;
+        textureDescription.Usage = D3D11_USAGE_DEFAULT;
+        textureDescription.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+        textureDescription.CPUAccessFlags = 0;
+        textureDescription.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+        if (FAILED(device->CreateTexture2D(&textureDescription, nullptr, &m_texture)))
+        {
+            return false;
+        }
+
+        const uint32_t rowPitch = static_cast<uint32_t>(m_width) * static_cast<uint32_t>(sizeof(uint_least8_t)) * static_cast<uint32_t>(m_channels);
+        deviceContext->UpdateSubresource(m_texture, 0, nullptr, m_textureData, rowPitch, 0);
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDescription{};
+        shaderResourceViewDescription.Format = textureDescription.Format;
+        shaderResourceViewDescription.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        shaderResourceViewDescription.Texture2D.MostDetailedMip = 0;
+        shaderResourceViewDescription.Texture2D.MipLevels = -1;
+
+        if (FAILED(device->CreateShaderResourceView(m_texture, &shaderResourceViewDescription, &m_textureView)))
+        {
+            return false;
+        }
+
+        deviceContext->GenerateMips(m_textureView);
+
+        stbi_image_free(m_textureData);
+        m_textureData = nullptr;
+
+        return true;
+    }
+
+    void CTexture::Shutdown()
+    {
+        if (m_textureView)
+        {
+            m_textureView->Release();
+            m_textureView = nullptr;
+        }
+
+        if (m_texture)
+        {
+            m_texture->Release();
+            m_texture = nullptr;
+        }
+
+        if (m_textureData)
+        {
+            stbi_image_free(m_textureData);
+            m_textureData = nullptr;
+        }
+    }
+
+    bool CTexture::LoadTexture(std::string filename)
+    {
+        std::filesystem::path texturePath{std::filesystem::current_path() / "res" / "textures" / filename};
+
+        constexpr int32_t forceChannels = 4;
+        m_textureData = stbi_load(texturePath.string().c_str(), &m_width, &m_height, &m_channels, forceChannels);
+
+        if (!m_textureData)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+} // namespace GP

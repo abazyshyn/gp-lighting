@@ -28,6 +28,7 @@
     </ClCompile>
     <ClCompile Include="src\system\application\application.cpp" />
     <ClCompile Include="src\system\application\direct3d\direct3d.cpp" />
+    <ClCompile Include="src\system\application\texture\texture.cpp" />
     <ClCompile Include="src\system\system.cpp" />
     <ClCompile Include="vendor\stb_image\stb_image.cpp" />
   </ItemGroup>
@@ -35,6 +36,7 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\system\application\application.h" />
     <ClInclude Include="src\system\application\direct3d\direct3d.h" />
+    <ClInclude Include="src\system\application\texture\texture.h" />
     <ClInclude Include="src\system\system.h" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
