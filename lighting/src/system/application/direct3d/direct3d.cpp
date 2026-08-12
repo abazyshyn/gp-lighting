@@ -13,6 +13,7 @@ namespace GP
           m_depthStencilBuffer(nullptr),
           m_depthStencilState(nullptr),
           m_depthStencilView(nullptr),
+          m_alphaBlendState(nullptr),
           m_rasterizerState(nullptr),
           m_depthDisabledStencilState(nullptr)
     {
@@ -302,6 +303,12 @@ namespace GP
         {
             m_depthStencilBuffer->Release();
             m_depthStencilBuffer = nullptr;
+        }
+
+        if (m_alphaBlendState)
+        {
+            m_alphaBlendState->Release();
+            m_alphaBlendState = nullptr;
         }
 
         if (m_swapChain)
