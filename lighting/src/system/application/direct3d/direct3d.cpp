@@ -335,7 +335,7 @@ namespace GP
         const std::array<float, 4> color = {red, green, blue, alpha};
 
         m_deviceContext->ClearRenderTargetView(m_renderTargetView, color.data());
-        m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0.0f);
+        m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
     }
 
     void CDirect3D::EndScene()

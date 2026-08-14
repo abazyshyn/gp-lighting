@@ -16,7 +16,7 @@ namespace GP
     {
     }
 
-    bool CTexture::Init(ID3D11Device *device, ID3D11DeviceContext *deviceContext, std::string filename)
+    bool CTexture::Init(std::string filename, ID3D11Device *device, ID3D11DeviceContext *deviceContext)
     {
         if (!LoadTexture(filename))
         {

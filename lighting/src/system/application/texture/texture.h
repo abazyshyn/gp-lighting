@@ -8,7 +8,7 @@ namespace GP
     public:
         CTexture();
 
-        bool Init(ID3D11Device *device, ID3D11DeviceContext *deviceContext, std::string filename);
+        bool Init(std::string filename, ID3D11Device *device, ID3D11DeviceContext *deviceContext);
         void Shutdown();
 
         int32_t GetWidth() const { return m_width; }
