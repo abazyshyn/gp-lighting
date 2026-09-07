@@ -3,6 +3,8 @@
 namespace GP
 {
 
+    constexpr unsigned int NUM_LIGHTS = 4;
+
     class CLightingShader
     {
     public:
@@ -18,15 +20,38 @@ namespace GP
 
     private:
         bool InitShader(ID3D11Device *device, HWND hWnd, const std::filesystem::path &vsFilename, const std::filesystem::path &psFilename);
+        void OutputShaderErrorMessage(ID3D10Blob *errorMessage, HWND hWnd, const std::filesystem::path &shaderFilename);
 
     private:
-        ID3D11VertexShader *m_VertexShader;
-        ID3D11PixelShader *m_PixelShader;
-        ID3D11InputLayout *m_InputLayout;
-        ID3D11Buffer *m_MatrixBuffer;
-        ID3D11SamplerState *m_SampleState;
-        ID3D11Buffer *m_LightBuffer;
-        ID3D11Buffer *m_CameraBuffer;
+        struct MatrixBuffer_s
+        {
+            XMMATRIX worldMatrix;
+            XMMATRIX viewMatrix;
+            XMMATRIX projectionMatrix;
+        };
+
+        struct CameraBuffer_s
+        {
+            XMFLOAT3 cameraPosition;
+            float _pad; // Padding
+        };
+
+        struct LightBuffer_s
+        {
+            XMFLOAT4 ambientColor;
+            XMFLOAT4 diffuseColor;
+            XMFLOAT3 lightDirection;
+            float specularPower;
+            XMFLOAT4 specularColor;
+        };
+
+        ID3D11VertexShader *m_vertexShader;
+        ID3D11PixelShader *m_pixelShader;
+        ID3D11InputLayout *m_inputLayout;
+        ID3D11Buffer *m_matrixBuffer;
+        ID3D11SamplerState *m_sampleState;
+        ID3D11Buffer *m_lightBuffer;
+        ID3D11Buffer *m_cameraBuffer;
     };
 
 } // namespace GP
