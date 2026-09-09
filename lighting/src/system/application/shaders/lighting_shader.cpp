@@ -29,6 +29,74 @@ namespace GP
         return true;
     }
 
+    void CLightingShader::Shutdown()
+    {
+        ShutdownShader();
+    }
+
+    bool CLightingShader::Render(ID3D11DeviceContext *deviceContext, int32_t indexCount)
+    {
+        RenderShader(deviceContext, indexCount);
+
+        return true;
+    }
+
+    bool CLightingShader::SetShaderCamera(ID3D11DeviceContext *deviceContext, XMFLOAT3 cameraPosition)
+    {
+        if (FAILED(deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &m_mappedSubresource)))
+        {
+            return false;
+        }
+
+        CameraBuffer_s *data = static_cast<CameraBuffer_s *>(m_mappedSubresource.pData);
+        data->cameraPosition = cameraPosition;
+
+        deviceContext->Unmap(m_cameraBuffer, 0);
+
+        deviceContext->VSSetConstantBuffers(0, 1, &m_cameraBuffer);
+    }
+
+    bool CLightingShader::SetShaderMatrixBuffer(ID3D11DeviceContext *deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
+    {
+        if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &m_mappedSubresource)))
+        {
+            return false;
+        }
+
+        MatrixBuffer_s *data = static_cast<MatrixBuffer_s *>(m_mappedSubresource.pData);
+        data->worldMatrix = XMMatrixTranspose(worldMatrix);
+        data->viewMatrix = XMMatrixTranspose(viewMatrix);
+        data->projectionMatrix = XMMatrixTranspose(projectionMatrix);
+
+        deviceContext->Unmap(m_matrixBuffer, 0);
+
+        deviceContext->VSSetConstantBuffers(1, 1, &m_matrixBuffer);
+
+        return true;
+    }
+
+    bool CLightingShader::SetShaderLight(ID3D11DeviceContext *deviceContext, XMFLOAT3 lightDirection, XMFLOAT4 ambientColor,
+                                         XMFLOAT4 diffuseColor, XMFLOAT4 specularColor, float specularPower)
+    {
+        if (FAILED(deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &m_mappedSubresource)))
+        {
+            return false;
+        }
+
+        LightBuffer_s *data = static_cast<LightBuffer_s *>(m_mappedSubresource.pData);
+        data->ambientColor = ambientColor;
+        data->diffuseColor = diffuseColor;
+        data->lightDirection = lightDirection;
+        data->specularPower = specularPower;
+        data->specularColor = specularColor;
+
+        deviceContext->Unmap(m_lightBuffer, 0);
+
+        deviceContext->PSSetConstantBuffers(0, 1, &m_lightBuffer);
+
+        return true;
+    }
+
     bool CLightingShader::InitShader(ID3D11Device *device, HWND hWnd, const std::filesystem::path &vsFilename, const std::filesystem::path &psFilename)
     {
         ID3DBlob *errorMessageBuffer{nullptr};
@@ -179,6 +247,51 @@ namespace GP
         return true;
     }
 
+    void CLightingShader::ShutdownShader()
+    {
+        if (m_vertexShader)
+        {
+            m_vertexShader->Release();
+            m_vertexShader = nullptr;
+        }
+
+        if (m_pixelShader)
+        {
+            m_pixelShader->Release();
+            m_pixelShader = nullptr;
+        }
+
+        if (m_inputLayout)
+        {
+            m_inputLayout->Release();
+            m_inputLayout = nullptr;
+        }
+
+        if (m_matrixBuffer)
+        {
+            m_matrixBuffer->Release();
+            m_matrixBuffer = nullptr;
+        }
+
+        if (m_cameraBuffer)
+        {
+            m_cameraBuffer->Release();
+            m_cameraBuffer = nullptr;
+        }
+
+        if (m_lightBuffer)
+        {
+            m_lightBuffer->Release();
+            m_lightBuffer = nullptr;
+        }
+
+        if (m_sampleState)
+        {
+            m_sampleState->Release();
+            m_sampleState = nullptr;
+        }
+    }
+
     void CLightingShader::OutputShaderErrorMessage(ID3D10Blob *errorMessage, HWND hWnd, const std::filesystem::path &shaderFilename)
     {
         char *compileErrors = static_cast<char *>(errorMessage->GetBufferPointer());
@@ -202,6 +315,17 @@ namespace GP
         errorMessage->Release();
         errorMessage = nullptr;
         MessageBox(hWnd, L"Error compiling shader. Check shader-error.txt for message.", shaderFilename.c_str(), MB_OK);
+    }
+
+    void CLightingShader::RenderShader(ID3D11DeviceContext *deviceContext, int32_t indexCount)
+    {
+        deviceContext->IASetInputLayout(m_inputLayout);
+
+        deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
+        deviceContext->PSSetShader(m_pixelShader, nullptr, 0);
+        deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+
+        deviceContext->DrawIndexed(indexCount, 0, 0);
     }
 
 } // namespace GP
