@@ -28,6 +28,7 @@
     </ClCompile>
     <ClCompile Include="src\system\application\application.cpp" />
     <ClCompile Include="src\system\application\direct3d\direct3d.cpp" />
+    <ClCompile Include="src\system\application\light\light.cpp" />
     <ClCompile Include="src\system\application\model\model.cpp" />
     <ClCompile Include="src\system\application\shaders\lighting_shader.cpp" />
     <ClCompile Include="src\system\application\texture\texture.cpp" />
@@ -38,6 +39,7 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\system\application\application.h" />
     <ClInclude Include="src\system\application\direct3d\direct3d.h" />
+    <ClInclude Include="src\system\application\light\light.h" />
     <ClInclude Include="src\system\application\model\model.h" />
     <ClInclude Include="src\system\application\shaders\lighting_shader.h" />
     <ClInclude Include="src\system\application\texture\texture.h" />
